@@ -69,6 +69,7 @@ const Customer = (props) => {
   }, []);
 
   //todo
+  console.log(products);
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -117,11 +118,6 @@ const Customer = (props) => {
     React.useCallback(() => {
       loadCustomer();
       loadCongiguration();
-
-      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      //! Llamar a la función para obtener los clientes de la base de datos
-      obtenerClientes();
-      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       //return () => unsubscribe();
     }, [setData, setDataConfiguration]),
