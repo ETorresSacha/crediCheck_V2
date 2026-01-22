@@ -8,7 +8,16 @@ import Header from "../../components/header/Header";
 import RenderCustomer from "./RenderCustomer";
 import UseStorageConfiguration from "../../components/hooks/UseHookConfiguration";
 import Loading from "../../components/loading/Loading";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
+// importciones de la base de datos (Firebase)
+import { database } from "../../backend/fb";
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  getDocs,
+} from "firebase/firestore";
 
 const Customer = (props) => {
   let enable = props?.route?.params?.enable; // Habilita el componente de los clientes cancelados
@@ -21,19 +30,48 @@ const Customer = (props) => {
   const [inicio, setInicio] = useState(); // habilita las notificaciones
   const [data, setData] = useState();
   const [dataCustomer, setDataCustomer] = useState();
-
+  //!
+  const [products, setProducts] = useState([]);
   // Cargar los datos de la configuración
   const loadCongiguration = async () => {
     try {
       let result = await onGetConfiguration();
-
       setDataConfiguration(
-        result == undefined ? { intMoratorio: "0" } : result[0] // "undefined" ocurre solo cuando no se guarda el interes en el storage
+        result == undefined ? { intMoratorio: "0" } : result[0], // "undefined" ocurre solo cuando no se guarda el interes en el storage
       );
     } catch (error) {
       console.error(error);
     }
   };
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //todo--> peticiones a la base de datos en tiempo real
+  useEffect(() => {
+    const collectionRef = collection(database, "customers");
+    const q = query(collectionRef);
+
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const docs = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(), // Usar el spread operator es más limpio si traes todo
+        }));
+
+        setProducts(docs);
+      },
+      (error) => {
+        console.error("Error al traer clientes: ", error);
+      },
+    );
+
+    // IMPORTANTE: Retornamos la función para cerrar la conexión al desmontar el componente
+    return () => unsubscribe();
+  }, []);
+
+  //todo
+
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   // Trae los datos del local storage
   const loadCustomer = async () => {
     try {
@@ -80,8 +118,13 @@ const Customer = (props) => {
       loadCustomer();
       loadCongiguration();
 
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //! Llamar a la función para obtener los clientes de la base de datos
+      obtenerClientes();
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
       //return () => unsubscribe();
-    }, [setData, setDataConfiguration])
+    }, [setData, setDataConfiguration]),
   );
 
   // Renderiza
@@ -89,7 +132,6 @@ const Customer = (props) => {
     resultCustomer();
   }, [data, setDataCustomer, inicio, day]);
 
-  //console.log(data);
   return (
     <View style={styles.container}>
       {dataCustomer == undefined ? (
