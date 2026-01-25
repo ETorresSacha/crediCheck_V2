@@ -17,6 +17,15 @@ import Loading from "../../components/loading/Loading";
 import Entypo from "@expo/vector-icons/Entypo";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { calculoMora } from "../../utils/calculoCuota/CalculosFuncionesCrediticios";
+// base de datos (Firebase)
+import { database } from "../../backend/fb";
+import {
+  collection,
+  onSnapshot,
+  query,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
 
 const Detail = (props) => {
   const { onGetCronograma, onDeleteCustomer } = UseStorage();
@@ -34,14 +43,35 @@ const Detail = (props) => {
   const [modify, setModify] = useState([]); // Para editar el status del pago
   const [dataSee, setDataSee] = useState(); // Datos que se renderizará
   const [canceledShare, setCanceledShare] = useState(false); // Cuota cancelada
+  const [customers, setCustomers] = useState([]);
 
-  // Trae los datos guardados del local storage
+  //todo--> Trae los datos guardados de la base de datos (Firestore)
+  useEffect(() => {
+    const collectionRef = collection(database, "customers");
+    const q = query(collectionRef);
+
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        let result = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        // Setea los clientes
+        setCustomers(result);
+      },
+      (error) => {
+        console.error("Error al traer clientes: ", error);
+      },
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // Carga el cliente por su ID
   const loadCustomerId = async (id) => {
     try {
-      const resultCustomer = await onGetCronograma();
-
-      const result = resultCustomer.filter((element) => element.uuid == id);
-
+      const result = customers?.filter((element) => element.id == id);
       setUser(result);
     } catch (error) {
       console.error(error);
@@ -52,7 +82,7 @@ const Detail = (props) => {
     React.useCallback(() => {
       loadCustomerId(valueProps?.id);
       //return () => unsubscribe();
-    }, [valueProps])
+    }, [valueProps, customers]),
   );
 
   useEffect(() => {
@@ -60,7 +90,7 @@ const Detail = (props) => {
     setUpdatePrestamo(user[0]?.resultPrestamo);
 
     let result = user[0]?.resultPrestamo.find(
-      (element) => element.statusPay == false
+      (element) => element.statusPay == false,
     );
 
     setDataSee(result);
@@ -81,7 +111,7 @@ const Detail = (props) => {
           mora: calculoMora(
             result,
             valueProps?.dataConfiguration,
-            user[0]?.interes // calculamos la mora
+            user[0]?.interes, // calculamos la mora
           ),
         };
 
@@ -105,7 +135,7 @@ const Detail = (props) => {
       });
 
       //return () => unsubscribe();
-    }, [])
+    }, []),
   );
 
   // Editar
@@ -121,19 +151,20 @@ const Detail = (props) => {
   };
 
   // Eliminar
-  const handleDelete = async (data) => {
+  const handleDelete = async (value) => {
     try {
-      await onDeleteCustomer(data);
+      const docRef = doc(database, "customers", value);
+      deleteDoc(docRef);
       navigation.navigate("Clientes", { enable: valueProps?.enable });
     } catch (error) {
       console.error();
     }
   };
-  const alertDelete = (data) => {
+  const alertDelete = (value) => {
     Alert.alert("Eliminar", "¿Desea continuar?", [
       {
         text: "Si",
-        onPress: () => handleDelete(data),
+        onPress: () => handleDelete(value),
         style: "destructive",
       },
       {

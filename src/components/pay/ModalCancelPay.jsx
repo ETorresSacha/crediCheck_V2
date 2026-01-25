@@ -11,6 +11,8 @@ import React from "react";
 import { calculoCanlelarDeuda } from "../../utils/calculoCuota/CalculosFuncionesCrediticios";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import UseStorage from "../hooks/UseHookStorage";
+import { database } from "../../backend/fb";
+import { doc, updateDoc } from "firebase/firestore";
 
 const ModalCancelPay = ({
   isVisible,
@@ -28,7 +30,7 @@ const ModalCancelPay = ({
   let deuda = calculoCanlelarDeuda(
     resultPrestamo,
     valueProps?.dataConfiguration,
-    interes
+    interes,
   );
 
   let montoTotal = (
@@ -45,7 +47,7 @@ const ModalCancelPay = ({
     { "Interés generado": deuda?.interes },
   ];
 
-  const funcionPagar = async () => {
+  const funcionPagar = async (id) => {
     //Cancelación de la deuda
     let objeto = {
       ...modify[0],
@@ -53,13 +55,17 @@ const ModalCancelPay = ({
       montoCanceled: montoTotal,
     };
     modify.splice(0, 1, objeto);
+    console.log(valueProps?.id);
 
     Alert.alert("Cancelar la deuda", "¿Desea continuar?", [
       {
         text: "Si",
         onPress: async () => {
           setIsVisible(false);
-          await onUpdateStatusPay(modify);
+          //! await onUpdateStatusPay(modify);
+          const docRef = doc(database, "customers", id);
+          await updateDoc(docRef, modify[0]);
+
           setEnable(false);
           setCanceledShare(true);
         },
@@ -184,7 +190,7 @@ const ModalCancelPay = ({
           <View style={{ alignItems: "center", paddingTop: 10 }}>
             <TouchableOpacity
               style={styles.btnPagar}
-              onPress={() => funcionPagar()}
+              onPress={() => funcionPagar(valueProps?.id)}
             >
               <Text style={styles.subTitle}> Pagar la deuda</Text>
             </TouchableOpacity>

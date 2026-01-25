@@ -29,7 +29,7 @@ const Users = ({ data, dataConfiguration, day, enable }) => {
       {data?.map((element, index) => {
         return (
           <View
-            key={element.uuid}
+            key={element.id}
             style={
               index % 2 == 0
                 ? [styles.dataItem, { backgroundColor: "rgb(31, 36, 36)" }]
@@ -43,7 +43,7 @@ const Users = ({ data, dataConfiguration, day, enable }) => {
               style={styles.touchItem}
               onPress={() =>
                 navigation.navigate("Detalle", {
-                  id: element?.uuid,
+                  id: element?.id,
                   typeColor: !enable ? datePay(element, day)?.color : null,
                   enable: enable ? enable : undefined,
                   dataConfiguration: dataConfiguration,
@@ -89,7 +89,7 @@ const Users = ({ data, dataConfiguration, day, enable }) => {
                     : montoPay(
                         element?.resultPrestamo,
                         dataConfiguration,
-                        element?.interes
+                        element?.interes,
                       ).toFixed(2)}
                 </Text>
               </View>

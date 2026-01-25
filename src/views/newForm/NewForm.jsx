@@ -12,17 +12,17 @@ import UseStorage from "../../components/hooks/UseHookStorage";
 import Calculator from "../calculator/Calculator";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import "react-native-get-random-values"; // generea valores aleatorios para que el uuid no se repita
-import { v4 as uuidv4 } from "uuid";
+//import { v4 as uuidv4 } from "uuid"; //! eliminar de package.json
 import { validationDataPerson } from "../../utils/validation/Validation";
 import Header from "../../components/header/Header";
 import { TEA } from "../../utils/calculoCuota/Formulas";
 import Usura from "../../modals/usura/Usura,";
 // importación de la base de datos (Firebase)
 import { database } from "../../backend/fb";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 
 const NewForm = (props) => {
-  const uuid = uuidv4();
+  //const uuid = uuidv4();
   const navigation = useNavigation();
   const { onSaveCronograma } = UseStorage();
   const [errorsP, setErrorsP] = useState({});
@@ -44,9 +44,10 @@ const NewForm = (props) => {
   const dataConfiguration = props.route.params?.dataConfiguration; // Datos de la configuración
 
   // ****
+  console.log(id);
 
   const [dataPerson, setDataPerson] = useState({
-    uuid: !user ? uuid : user?.uuid,
+    // id: !user ? null : user?.id,
     nombre: !user ? "" : user?.nombre,
     apellido: !user ? "" : user?.apellido,
     dni: !user ? "" : user?.dni,
@@ -69,7 +70,7 @@ const NewForm = (props) => {
     // Limpia es estado
     if (clean) {
       setDataPerson({
-        uuid,
+        // uuid,
         nombre: "",
         apellido: "",
         dni: "",
@@ -135,9 +136,8 @@ const NewForm = (props) => {
   };
   //! PODRIAMOS OPTIMIZAR EL CODIGO TRATANDO DE DON USAR UN ESTADO, SINO DIRECTAMENTE LA FUNCION DE GUARDAR, PERO ESTO SERIA LLAMADO CUANDO CUMPLA LA CONDICION DE USURA, DIRECTMAENTE (VER MAS ADELANTE)
   // Confirmacion y guardar
+  //console.log("dataPerson: ", dataPerson);
 
-
-  
   useFocusEffect(
     React.useCallback(() => {
       const load = async () => {
@@ -145,13 +145,26 @@ const NewForm = (props) => {
           setValuePrest(false);
 
           // Guarda los datos en el local storage
-          await onSaveCronograma(dataPerson, editValue);
+          //await onSaveCronograma(dataPerson, editValue);
 
-          // Guardar clientes en Firestore (Firebase)
-          await addDoc(collection(database, "customers"), dataPerson);
+          // Guarda los datos en Firestore (Firebase)
+          // Cliente nuevo
+          if (!editValue) {
+            await addDoc(collection(database, "customers"), dataPerson);
+          }
+
+          // Editar cliente
+          if (editValue == true) {
+            const docRef = doc(database, "customers", id);
+            console.log(docRef);
+
+            await updateDoc(docRef, dataPerson);
+          }
 
           // Editar
           if (editValue) {
+            console.log("manda a detalle");
+
             navigation.navigate("Detalle", {
               id: id,
               typeColor: typeColor,
@@ -164,7 +177,7 @@ const NewForm = (props) => {
       };
 
       load(); // llamado a la función
-    }, [confirmacion])
+    }, [confirmacion]),
   );
   return (
     <View style={[styles.container]}>
@@ -210,13 +223,13 @@ const NewForm = (props) => {
         />
 
         {/* modal de USURA */}
-        <Usura
+        {/* <Usura
           isVisible={isVisible}
           setIsVisible={setIsVisible}
           tea={tea}
-          uuid={dataPerson?.uuid}
+          //uuid={dataPerson?.uuid} //! necesita el id
           setConfirmacion={setConfirmacion}
-        />
+        /> */}
         <View
           style={{
             alignItems: "center",

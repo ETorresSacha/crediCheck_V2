@@ -11,6 +11,16 @@ import { formatDate } from "../../utils/thunks/Thunks";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import ModalCancelPay from "./ModalCancelPay";
 import { useNavigation } from "@react-navigation/native";
+import { database } from "../../backend/fb";
+import {
+  collection,
+  onSnapshot,
+  query,
+  doc,
+  deleteDoc,
+  updateDoc,
+} from "firebase/firestore";
+
 const Pay = ({
   data,
   indice,
@@ -71,7 +81,9 @@ const Pay = ({
         setIndice(indice + 1);
         setDataSee(objeto);
 
-        await onUpdateStatusPay(modify);
+        //!await onUpdateStatusPay(modify);
+        const docRef = doc(database, "customers", valueProps?.id);
+        await updateDoc(docRef, modify[0]);
 
         setValueProps({
           ...valueProps,
@@ -89,7 +101,9 @@ const Pay = ({
         };
         modify.splice(0, 1, objeto);
 
-        await onUpdateStatusPay(modify);
+        //! await onUpdateStatusPay(modify);
+        const docRef = doc(database, "customers", valueProps?.id);
+        await updateDoc(docRef, modify[0]);
         setCanceledShare(true);
       }
     }
@@ -102,9 +116,13 @@ const Pay = ({
   const HandleCancelPay = async () => {
     if (modify[0]?.montoCanceled) {
       let objeto = { ...modify[0], canceled: false };
+      console.log(objeto);
+
       delete objeto.montoCanceled;
 
-      await onUpdateStatusPay(objeto); // Guardamos los datos
+      //!await onUpdateStatusPay(objeto); // Guardamos los datos
+      const docRef = doc(database, "customers", valueProps?.id);
+      await updateDoc(docRef, objeto);
 
       setUser([objeto]); // seteamos para la vista
 
@@ -115,7 +133,10 @@ const Pay = ({
           let objeto = { ...payShare, statusPay: false };
           updatePrestamo?.splice(indice - 1, 1, objeto); // Modificamos los pagos
 
-          await onUpdateStatusPay(modify); // Guardamos los datos
+          //! await onUpdateStatusPay(modify); // Guardamos los datos
+          const docRef = doc(database, "customers", valueProps?.id);
+          await updateDoc(docRef, modify[0]);
+
           setIndice(indice - 1);
 
           countShare = countShare - 1; // resta 1 por cada pago cancelado, para continuar con el siguiente
@@ -138,13 +159,17 @@ const Pay = ({
 
           modify.splice(0, 1, newResult); // Reemplazamos los datos de "modify" con los datos actualizados
 
-          await onUpdateStatusPay(modify); // Guardamos los datos
+          //! await onUpdateStatusPay(modify); // Guardamos los datos
+          const docRef = doc(database, "customers", valueProps?.id);
+          await updateDoc(docRef, modify[0]);
           setCanceledShare(false);
         }
       }
     }
   };
-
+  //! TENEMOS QUE REVISAR LA FUNCIONALIDAD DE PAGAR Y CANLERAR LA DEUDA COMO TAMBIEN EL PAGO.
+  //! SE TIENE UN RETRASO EN DE UN CLICK AL CANCELAR EL PAGO
+  //! PARA UN MEJOR EXPERIENCIA DEL USUARIO Y NO TENGA NINGUN CONVENIENTE AL ENTENDER LA LOGICA DE LA APP ES MEJOR CAMIA LA OPCION DE CANCELAR EL PAGO EN EL CRONOGRAMA
   return (
     <View style={styles.container}>
       {

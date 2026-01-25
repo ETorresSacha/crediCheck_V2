@@ -11,13 +11,7 @@ import Loading from "../../components/loading/Loading";
 import { format, set } from "date-fns";
 // importciones de la base de datos (Firebase)
 import { database } from "../../backend/fb";
-import {
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  getDocs,
-} from "firebase/firestore";
+import { collection, onSnapshot, query } from "firebase/firestore";
 
 const Customer = (props) => {
   let enable = props?.route?.params?.enable; // Habilita el componente de los clientes cancelados
@@ -30,12 +24,12 @@ const Customer = (props) => {
   const [inicio, setInicio] = useState(); // habilita las notificaciones
   const [data, setData] = useState();
   const [dataCustomer, setDataCustomer] = useState();
-  //!
-  const [products, setProducts] = useState([]);
+
   // Cargar los datos de la configuración
   const loadCongiguration = async () => {
     try {
       let result = await onGetConfiguration();
+
       setDataConfiguration(
         result == undefined ? { intMoratorio: "0" } : result[0], // "undefined" ocurre solo cuando no se guarda el interes en el storage
       );
@@ -43,8 +37,8 @@ const Customer = (props) => {
       console.error(error);
     }
   };
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  //todo--> peticiones a la base de datos en tiempo real
+
+  // LLama a la base de datos para obtener los clientes (firebase)
   useEffect(() => {
     const collectionRef = collection(database, "customers");
     const q = query(collectionRef);
@@ -52,43 +46,28 @@ const Customer = (props) => {
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot) => {
-        const docs = querySnapshot.docs.map((doc) => ({
+        let result = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(), // Usar el spread operator es más limpio si traes todo
         }));
 
-        setProducts(docs);
+        result = orderData("fecha", result, false, enable); // ordena de forma ascendente de acuerdo a la fecha
+
+        setData({
+          ...data,
+          dataResult: result,
+          dataResultCopy: result,
+        });
       },
       (error) => {
         console.error("Error al traer clientes: ", error);
       },
     );
 
-    // IMPORTANTE: Retornamos la función para cerrar la conexión al desmontar el componente
-    return () => unsubscribe();
+    // IMPORTANTE:
+    return () => unsubscribe(); //Retornamos la función para cerrar la conexión al desmontar el componente
   }, []);
 
-  //todo
-  console.log(products);
-
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  // Trae los datos del local storage
-  const loadCustomer = async () => {
-    try {
-      let result = await onGetCronograma();
-
-      result = orderData("fecha", result, false, enable); // ordena de forma ascendente de acuerdo a la fecha
-
-      setData({
-        ...data,
-        dataResult: result,
-        dataResultCopy: result,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
   // clasificación de los clientes de acuerdo a la fecha de pago
   const resultCustomer = () => {
     setInicio(false);
@@ -116,10 +95,7 @@ const Customer = (props) => {
   // Renderiza
   useFocusEffect(
     React.useCallback(() => {
-      loadCustomer();
       loadCongiguration();
-
-      //return () => unsubscribe();
     }, [setData, setDataConfiguration]),
   );
 
