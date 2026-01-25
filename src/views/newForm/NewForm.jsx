@@ -156,6 +156,8 @@ const NewForm = (props) => {
           // Editar cliente
           if (editValue == true) {
             const docRef = doc(database, "customers", id);
+            console.log(docRef);
+
             await updateDoc(docRef, dataPerson);
           }
 

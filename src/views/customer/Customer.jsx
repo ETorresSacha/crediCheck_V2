@@ -12,7 +12,6 @@ import { format, set } from "date-fns";
 // importciones de la base de datos (Firebase)
 import { database } from "../../backend/fb";
 import { collection, onSnapshot, query } from "firebase/firestore";
-import { onGetCustomers } from "../../backend/crud";
 
 const Customer = (props) => {
   let enable = props?.route?.params?.enable; // Habilita el componente de los clientes cancelados
