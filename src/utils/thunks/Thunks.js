@@ -2,7 +2,6 @@ import { calculoMora, calculoMoraSimple } from '../calculoCuota/CalculosFuncione
 import { compareAsc, format,add,formatDistance, getDate,isFuture,isEqual,differenceInDays} from 'date-fns'
 //TODO--> ORDENAR
 export const orderData = (type,data,value,enable)=>{
-  
     let result
     switch (type) {
         case 'dni':
