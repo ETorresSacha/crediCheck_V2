@@ -10,12 +10,11 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import ItemsHome from "../../components/itemsHome/ItemsHome";
 import { SimpleLineIcons } from "@expo/vector-icons";
-import ModalConfigPersonal from "../../modals/modalConfigPersonal/ModalConfigPersonal";
 import UseStorageConfiguration from "../../components/hooks/UseHookConfiguration";
 import UseStorageBusiness from "../../components/hooks/UseHookDataNeg";
 import fondoHome from "../../../assets/fondoHome.jpg";
 import logoCrediCheck from "../../../assets/logoCrediCheck.png";
-
+import Configuracion from "./modal/Configuracion";
 const Home = () => {
   const { onGetBusiness } = UseStorageBusiness();
   const { onGetConfiguration } = UseStorageConfiguration();
@@ -25,7 +24,7 @@ const Home = () => {
   const [dataConfiguration, setDataConfiguration] = useState({}); //Datos de la configuración
   const [copy, setCopy] = useState({}); // Sirve para verificar si se nota el cambio del interes moratorio
 
-  // Cargar los datos de la financiera
+  // Cargar los datos de la financiera //! EVALUAR SI SE GUARDARAN LOS DATOS EN STORAGE O EN FIREBASE
   const loadNegocio = async () => {
     try {
       const result = await onGetBusiness();
@@ -68,7 +67,7 @@ const Home = () => {
     React.useCallback(() => {
       loadNegocio();
       loadCongiguration();
-    }, [enable, setDataConfiguration])
+    }, [enable, setDataConfiguration]),
   );
 
   return (
@@ -90,7 +89,7 @@ const Home = () => {
       </View>
 
       {/* MODAL OPCIONES */}
-      <ModalConfigPersonal
+      <Configuracion
         visible={isVisible}
         onClose={handleModalClose}
         setDataHome={setDataBusiness}

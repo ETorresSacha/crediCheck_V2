@@ -6,7 +6,6 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
 } from "react-native";
-import React from "react";
 
 const AcercaApp = ({ app, setApp }) => {
   return (

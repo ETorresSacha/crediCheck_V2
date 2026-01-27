@@ -8,9 +8,9 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import React, { useState } from "react";
-import InfNegocio from "./modalOptions/InfNegocio";
-import InteresMoratorio from "./modalOptions/InteresMoratorio";
-import AcercaApp from "./modalOptions/AcercaApp";
+import InfNegocio from "./modalOpciones/InfNegocio";
+import InteresMoratorio from "./modalOpciones/InteresMoratorio";
+import AcercaApp from "./modalOpciones/AcercaApp";
 
 const optionsData = [
   "Información Negocio",
@@ -19,7 +19,7 @@ const optionsData = [
   "Recomendar App",
 ];
 
-const ModalConfigPersonal = ({
+const Configuracion = ({
   visible,
   onClose,
   setDataHome,
@@ -118,7 +118,7 @@ const ModalConfigPersonal = ({
   );
 };
 
-export default ModalConfigPersonal;
+export default Configuracion;
 
 const styles = StyleSheet.create({
   container: {

@@ -11,9 +11,9 @@ import {
 } from "react-native";
 import equal from "deep-equal";
 import React from "react";
-import { validationConfiguration } from "../../../utils/validation/Validation";
-import UseStorageConfiguration from "../../../components/hooks/UseHookConfiguration";
 import { RFPercentage } from "react-native-responsive-fontsize";
+import { validationConfiguration } from "../../../../utils/validation/Validation";
+import UseStorageConfiguration from "../../../../components/hooks/UseHookConfiguration";
 
 const InteresMortorio = ({
   enablerConf,

@@ -10,9 +10,9 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import UseStorageBusiness from "../../../components/hooks/UseHookDataNeg";
-import { validationInfNegocios } from "../../../utils/validation/Validation";
 import { RFPercentage } from "react-native-responsive-fontsize";
+import UseStorageBusiness from "../../../../components/hooks/UseHookDataNeg";
+import { validationInfNegocios } from "../../../../utils/validation/Validation";
 
 const InfNegocio = ({ enablerNeg, setEnableNeg, setDataHome, setEnable }) => {
   const { onSaveDataBusiness, onGetBusiness } = UseStorageBusiness();
